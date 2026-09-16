@@ -1,0 +1,3 @@
+.terraform/
+*.tvars
+.terraform.lock.hcl 
