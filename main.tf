@@ -88,3 +88,52 @@ resource "aws_route_table_association""public_b"{
     subnet_id=aws_subnet.public_b.id
     route_table_id=aws_route_table.public.id
 }
+
+resource "aws_security_group" "k3s"{
+    name_prefix= "aiops-copilot-k3s-"
+    vpc_id=aws_vpc.main.id
+
+    ingress{
+        description="SSH"
+        from_port=22
+        to_port=22
+        protocol="tcp"
+        cidr_blocks=["0.0.0.0/0"]
+    }
+
+    ingress{
+        description="Kubernetes API"
+        from_port=6443
+        to_port=6443
+        protocol="tcp"
+        cidr_blocks=["0.0.0.0/0"]
+    }
+
+    egress{
+        from_port=0
+        to_port=0
+        protocol="-1"
+        cidr_blocks=["0.0.0.0/0"]
+    }
+
+    tags={
+        Name= "aiops-copilot-k3s-sg"
+    }
+}
+
+resource "aws_instance""k3s_node"{
+    ami="ami-0f5ee92e2d63afc18"
+    instance_type="t2.micro"
+    subnet_id=aws_subnet.public_a.id
+    vpc_security_group_ids=[aws_security_group.k3s.id]
+    key_name=aws_key_pair.k3s_key.key_name
+
+    tags={
+        Name="aiops-copilot-k3s-node"
+    }
+}
+
+resource "aws_key_pair" "k3s_key"{
+    key_name="aiops-copilot-k3s-key"
+    public_key=file("${path.module}/aiops-copilot-key.pub")
+}
