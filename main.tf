@@ -123,7 +123,7 @@ resource "aws_security_group" "k3s"{
 
 resource "aws_instance""k3s_node"{
     ami="ami-0f5ee92e2d63afc18"
-    instance_type="t3.micro"
+    instance_type="t3.small"
     subnet_id=aws_subnet.public_a.id
     vpc_security_group_ids=[aws_security_group.k3s.id]
     key_name=aws_key_pair.k3s_key.key_name
