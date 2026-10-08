@@ -158,4 +158,5 @@ resource "aws_instance" "k3s_node"{
 
     tags={
         Name="aiops-copilot-k3s-node"
-    }}
+    }
+    }
