@@ -137,3 +137,25 @@ resource "aws_key_pair" "k3s_key"{
     key_name="aiops-copilot-k3s-key"
     public_key=file("${path.module}/aiops-copilot-key.pub")
 }
+
+resource "aws_instance" "k3s_node"{
+    ami="ami-0f5ee92e2d63afc18"
+    instance_type="t3.small"
+    subnet_id=aws_subnet.public_a.id
+    vpc_security_group_ids=[aws_security_group.k3s.id]
+    key_name=aws_key_pair.k3s_key.key_name
+
+    user_data = <<-EOF
+    #!/bin/bash
+    PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
+    mkdir -p /etc/rancher/k3s
+    cat <<EOT > /etc/rancher/k3s/config.yaml
+    tls-san:
+        -$PUBLIC_IP
+    EOT
+    curl -sfL https://get.k3s.io | sh -
+    EOF
+
+    tags={
+        Name="aiops-copilot-k3s-node"
+    }}
